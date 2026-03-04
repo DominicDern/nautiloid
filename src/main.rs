@@ -1,16 +1,17 @@
 use std::collections::BTreeMap;
 
-type Id = u32;
+type TerrainId = u32;
+type SetId = u32;
 
 // Represents a terrain piece
 struct Terrain {
-    id: Id,
+    id: TerrainId,
     name: String,
-    number_printed: u16,
+    number_printed: usize,
 }
 
 impl Terrain {
-    fn new(name: String, id: Id) -> Self {
+    fn new(name: String, id: TerrainId) -> Self {
         Self {
             id,
             name,
@@ -20,27 +21,23 @@ impl Terrain {
 }
 
 struct Set {
-    id: Id,
+    id: SetId,
     name: String,
     // (name of piece, amount of pieces needed in set)
-    pieces: Vec<(String, u16)>,
+    pieces: Vec<(TerrainId, usize)>,
 }
 
 impl Set {
-    fn new(name: String, id: Id) -> Self {
-        Self {
-            id,
-            name,
-            pieces: Vec::new(),
-        }
+    fn new(id: SetId, name: String, pieces: Vec<(TerrainId, usize)>) -> Self {
+        Self { id, name, pieces }
     }
 }
 
 struct TerrainDb {
-    current_terrain_id: Id,
-    current_set_id: Id,
-    terrain: BTreeMap<Id, Terrain>,
-    sets: BTreeMap<Id, Set>,
+    current_terrain_id: TerrainId,
+    current_set_id: SetId,
+    terrain: BTreeMap<TerrainId, Terrain>,
+    sets: BTreeMap<SetId, Set>,
 }
 
 impl TerrainDb {
@@ -59,6 +56,36 @@ impl TerrainDb {
         self.current_terrain_id += 1;
         let terrain_piece = Terrain::new(name, self.current_terrain_id);
         self.terrain.insert(self.current_terrain_id, terrain_piece);
+    }
+
+    fn add_set(&mut self, name: String, pieces: Vec<(TerrainId, usize)>) {
+        self.current_set_id += 1;
+        let set = Set::new(self.current_set_id, name, pieces);
+        self.sets.insert(self.current_set_id, set);
+    }
+
+    fn remove_terrain(&mut self, name: &str) {
+        let mut found: Option<TerrainId> = None;
+        for (id, terrain) in &self.terrain {
+            if terrain.name == name {
+                found = Some(*id)
+            }
+        }
+        if let Some(id) = found {
+            self.terrain.remove(&id);
+        }
+    }
+
+    fn remove_set(&mut self, name: &str) {
+        let mut found: Option<SetId> = None;
+        for (id, set) in &self.sets {
+            if set.name == name {
+                found = Some(*id);
+            }
+        }
+        if let Some(id) = found {
+            self.sets.remove(&id);
+        }
     }
 }
 
