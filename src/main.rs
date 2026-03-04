@@ -1,7 +1,4 @@
-use std::{
-    collections::BTreeMap,
-    hash::{DefaultHasher, Hash, Hasher},
-};
+use std::collections::BTreeMap;
 
 type Id = u32;
 
@@ -47,6 +44,17 @@ struct TerrainDb {
 }
 
 impl TerrainDb {
+    fn new() -> Self {
+        Self {
+            current_terrain_id: 0,
+            current_set_id: 0,
+            terrain: BTreeMap::new(),
+            sets: BTreeMap::new(),
+        }
+    }
+}
+
+impl TerrainDb {
     fn add_terrain(&mut self, name: String) {
         self.current_terrain_id += 1;
         let terrain_piece = Terrain::new(name, self.current_terrain_id);
@@ -54,6 +62,4 @@ impl TerrainDb {
     }
 }
 
-fn main() {
-    println!("Hello, world!");
-}
+fn main() {}
